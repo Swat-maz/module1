@@ -1,0 +1,7 @@
+response_form.content:
+  path: '/controller'
+  defaults:
+    _controller: '\Drupal\swat\Controller\SwatController::show'
+    _title: ''
+  requirements:
+    _permission: 'access content'
