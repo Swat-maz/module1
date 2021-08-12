@@ -1,0 +1,16 @@
+entity.swat.collection:
+  title: 'Swat module'
+  route_name: entity.swat.admin_page
+  base_route: system.admin_content
+entity.swat.canonical:
+  title: 'View'
+  route_name: entity.swat.canonical
+  base_route: entity.swat.canonical
+entity.swat.edit_form:
+  title: 'Edit'
+  route_name: entity.swat.edit_form
+  base_route: entity.swat.canonical
+entity.swat.delete_form:
+  title: 'Delete'
+  route_name: entity.swat.delete_form
+  base_route: entity.swat.canonical

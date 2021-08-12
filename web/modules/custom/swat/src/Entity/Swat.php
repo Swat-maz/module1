@@ -4,8 +4,6 @@ namespace Drupal\swat\Entity;
 
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\EntityPublishedInterface;
-use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\user\EntityOwnerInterface;
@@ -22,7 +20,7 @@ use Drupal\user\EntityOwnerTrait;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
- *     "label" = "title",
+ *     "label" = "name",
  *     "owner" = "author",
  *     "published" = "published",
  *   },
@@ -33,18 +31,15 @@ use Drupal\user\EntityOwnerTrait;
  *       "edit" = "Drupal\swat\Form\SwatForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *     },
- *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
- *     "local_action_provider" = {
- *       "collection" = "Drupal\entity\Menu\EntityCollectionLocalActionProvider",
- *     },
  *     "permission_provider" = "Drupal\entity\EntityPermissionProvider",
  *     "route_provider" = {
  *       "default" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *   },
  *   links = {
  *     "canonical" = "/swat/{swat}",
- *     "collection" = "/admin/content/swats",
+ *     "admin-page" = "/admin/content/swats/list",
  *     "add-form" = "/admin/content/swats/add",
  *     "edit-form" = "/admin/content/swats/manage/{swat}",
  *     "delete-form" = "/admin/content/swats/manage/{swat}/delete",
@@ -52,9 +47,9 @@ use Drupal\user\EntityOwnerTrait;
  *   admin_permission = "access content"
  * )
  */
-class Swat extends ContentEntityBase implements EntityOwnerInterface, EntityPublishedInterface {
+class Swat extends ContentEntityBase implements EntityOwnerInterface {
 
-  use EntityOwnerTrait, EntityPublishedTrait;
+  use EntityOwnerTrait;
 
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     // Get the field definitions for 'id' and 'uuid' from the parent.
@@ -63,6 +58,14 @@ class Swat extends ContentEntityBase implements EntityOwnerInterface, EntityPubl
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Your name'))
       ->setRequired(TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'weight' => 0,
+      ])
+      ->setSettings(array(
+        'max_length' => 50,
+      ))
+      ->addConstraint('CountName')
       ->setDisplayOptions('form', ['weight' => 0]);
 
     $fields['date'] = BaseFieldDefinition::create('created')
@@ -70,10 +73,7 @@ class Swat extends ContentEntityBase implements EntityOwnerInterface, EntityPubl
       ->setRequired(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'inline',
-        'settings' => [
-          'format_type' => 'html_date',
-        ],
-        'weight' => 0,
+        'weight' => 5,
       ]);
 
     $fields['email'] = BaseFieldDefinition::create('email')
@@ -84,13 +84,14 @@ class Swat extends ContentEntityBase implements EntityOwnerInterface, EntityPubl
         'settings' => [
           'format_type' => 'email',
         ],
-        'weight' => 0,
+        'weight' => 10,
       ])
       ->setDisplayOptions('form', ['weight' => 15]);
 
     $fields['tel'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Telephone'))
       ->setRequired(TRUE)
+      ->addConstraint('SwatTelephone')
       ->setDescription(t('Start entering the phone number after + XX XXX XXX XX XX'))
       ->setSettings(array(
         'max_length' => 12,
@@ -98,112 +99,51 @@ class Swat extends ContentEntityBase implements EntityOwnerInterface, EntityPubl
       ->setDisplayOptions('view', [
         'label' => 'inline',
         'settings' => [
-          'placeholder' => '112223333333',
           'format_type' => 'telephone',
         ],
-        'weight' => 0,
+        'weight' => 15,
       ])
-      ->setDisplayOptions('form', ['weight' => 17]);
+      ->setDisplayOptions('form', ['weight' => 17,]);
 
     $fields['feedback'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Feedback'))
       ->setRequired(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
-        'weight' => 10,
+        'weight' => 20,
       ])
       ->setDisplayOptions('form', ['weight' => 20]);
 
     $fields['avatar'] = BaseFieldDefinition::create('image')
       ->setLabel(t('Your avatar photo'))
-      ->setRequired(TRUE)
+//      ->setRequired(TRUE)
       ->setSettings(array(
         'file_extensions' => 'png jpg jpeg',
         'max_filesize' => '2097152',
       ))
       ->setDisplayOptions('view', [
         'label' => 'hidden',
-        'weight' => 10,
+        'weight' => 30,
       ])
       ->setDisplayOptions('form', ['weight' => 25]);
 
     $fields['photo'] = BaseFieldDefinition::create('image')
       ->setLabel(t('Your photo for feedback'))
-      ->setRequired(TRUE)
+//      ->setRequired(TRUE)
       ->setSettings(array(
         'file_extensions' => 'png jpg jpeg',
         'max_filesize' => '5242880',
       ))
       ->setDisplayOptions('view', [
         'label' => 'hidden',
-        'weight' => 10,
+        'weight' => 40,
       ])
       ->setDisplayOptions('form', ['weight' => 30]);
 
     // Get the field definitions for 'owner' and 'published' from the traits.
     $fields += static::ownerBaseFieldDefinitions($entity_type);
-    $fields += static::publishedBaseFieldDefinitions($entity_type);
-
-//    $fields['published']->setDisplayOptions('form', [
-//      'settings' => [
-//        'display_label' => TRUE,
-//      ],
-//      'weight' => 30,
-//    ]);
 
     return $fields;
-  }
-
-  /**
-   * @return string
-   */
-  public function getTitle() {
-    return $this->get('name')->value;
-  }
-
-  /**
-   * @param string $title
-   *
-   * @return $this
-   */
-  public function setTitle($title) {
-    return $this->set('name', $title);
-  }
-
-  /**
-   * @return \Drupal\Core\Datetime\DrupalDateTime
-   */
-  public function getDate() {
-    return $this->get('date')->date;
-  }
-
-  /**
-   * @param \Drupal\Core\Datetime\DrupalDateTime $date
-   *
-   * @return $this
-   */
-  public function setDate(DrupalDateTime $date) {
-    return $this->set('date', $date->format('Y-m-d\\TH:i:s'));
-  }
-
-  /**
-   * @return \Drupal\filter\Render\FilteredMarkup
-   */
-  public function getDescription() {
-    return $this->get('feedback')->processed;
-  }
-
-  /**
-   * @param string $description
-   * @param string $format
-   *
-   * @return $this
-   */
-  public function setDescription($description, $format) {
-    return $this->set('feedback', [
-      'value' => $description,
-      'format' => $format,
-    ]);
   }
 
 }

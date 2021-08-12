@@ -32,10 +32,10 @@
             <div class="buttons">
               <a class="btn delete use-ajax" data-dialog-type="modal"
                  data-dialog-options="{&quot;width&quot;:400}"
-                 href="/response/delete/{{ s.id }}?destination={{ path('response_form.content') }}">Delete</a>
+                 href="/admin/content/swats/manage/{{ s.swat }}/delete?destination={{ path('response_form.content') }}">Delete</a>
               <a class="btn edit use-ajax" data-dialog-type="modal"
                  data-dialog-options="{&quot;width&quot;:400}"
-                 href="/response/edit/{{ s.id }}?destination={{ path('response_form.content') }}">Edit</a>
+                 href="/admin/content/swats/manage/{{ s.swat }}?destination={{ path('response_form.content') }}">Edit</a>
             </div>
           {% endif %}
         </div>

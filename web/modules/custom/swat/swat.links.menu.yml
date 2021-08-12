@@ -1,0 +1,8 @@
+entity.swat.collection:
+  title: 'Swat module'
+  route_name: entity.swat.admin_page
+  parent: system.admin_content
+enity.swat.controller:
+  title: 'Guest Book'
+  route_name: response_form.content
+  menu_name: main

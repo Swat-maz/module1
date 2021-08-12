@@ -2,7 +2,6 @@
 
 namespace Drupal\swat\Controller;
 
-use Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
 use Drupal\file\Entity\File;
@@ -74,15 +73,15 @@ class SwatController extends ControllerBase {
       $phone = $value['tel'];
       $time = date('F/d/Y G:i:s', $timestamp);
       $feedback = $value['feedback'];
-      $avatarphoto = File::load($value['avatar__target_id']);
-      $feedbackphoto = File::load($value['photo__target_id']);
-      if ($avatarphoto !== NULL) {
+      if ($value['avatar__target_id'] !== NULL) {
+        $avatarphoto = File::load($value['avatar__target_id']);
         $ava = $avatarphoto->getFileUri();
       }
       else {
         $ava = 'public://default/default.jpeg';
       }
-      if ($feedbackphoto !== NULL) {
+      if ($value['photo__target_id'] !== NULL) {
+        $feedbackphoto = File::load($value['photo__target_id']);
         $feedfoto = $feedbackphoto->getFileUri();
       }
       else {
@@ -101,7 +100,7 @@ class SwatController extends ControllerBase {
         '#uri' => $feedfoto,
       ];
       $result[] = [
-        "id" => $id,
+        "swat" => $id,
         "name" => $full_name,
         "email" => $email,
         "feedback" => $feedback,

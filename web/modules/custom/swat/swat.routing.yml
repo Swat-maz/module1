@@ -1,7 +1,12 @@
 response_form.content:
-  path: '/controller'
+  path: '/guestbook'
   defaults:
     _controller: '\Drupal\swat\Controller\SwatController::show'
     _title: ''
+    _template: 'swat-theme'
   requirements:
     _permission: 'access content'
+entity.swat.admin_page:
+  path: '/admin/content/swats/list'
+  requirements:
+    _permission: 'administer content'

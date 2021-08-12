@@ -4,6 +4,9 @@ namespace Drupal\swat\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\AjaxResponse;
 
 class SwatForm extends ContentEntityForm {
 
@@ -22,7 +25,7 @@ class SwatForm extends ContentEntityForm {
     $this->logger($entity->getEntityTypeId())->notice('The @entity_type %entity has been saved.', $arguments);
     $this->messenger()->addStatus($this->t('The @entity_type %entity has been saved.', $arguments));
 
-    $form_state->setRedirectUrl($entity->toUrl('canonical'));
+    $form_state->setRedirectUrl(Url::fromRoute('response_form.content'));
   }
 
 }
